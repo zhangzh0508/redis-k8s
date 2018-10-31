@@ -1,5 +1,5 @@
 # redis-k8s
-Redis cluster setup for Kubernetes using Debian Jessie.
+Redis-3.2.6 cluster setup for Kubernetes using Debian Jessie.
 
 # Usage
 
