@@ -90,9 +90,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends git \
   && rm /tmp/go.tar.gz \
   && mkdir -p /usr/src/go/src \
   && export GOPATH=/usr/src/go \
-  && /usr/local/go/bin/go get k8s.io/kubernetes/pkg/util/net/sets \
+  && /usr/local/go/bin/go get k8s.io/apimachinery/pkg/util/sets \
   && /usr/local/go/bin/go build \
-    /usr/src/k8s-contrib/pets/peer-finder/peer-finder.go \
+    /usr/src/k8s-contrib/peer-finder/peer-finder.go \
   && mv peer-finder /usr/local/bin/ \
   && rm -rf /usr/local/go \
   && apt-get purge -y --auto-remove git \
