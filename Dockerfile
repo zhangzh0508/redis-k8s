@@ -103,7 +103,7 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends ruby redis-tools \
   && wget http://download.redis.io/redis-stable/src/redis-trib.rb -O /usr/local/bin/redis-trib.rb \
   && chmod +x /usr/local/bin/redis-trib.rb \
-  && gem install redis \
+  && gem install redis --version 3.0.0 \
   && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update \
