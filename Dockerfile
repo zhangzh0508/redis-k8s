@@ -126,4 +126,5 @@ RUN chmod +x /usr/local/bin/cluster-meet.sh
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 EXPOSE 6379
+
 CMD [ "/usr/local/bin/redis-server" ]
