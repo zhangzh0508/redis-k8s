@@ -84,7 +84,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends git \
   && git clone https://github.com/kubernetes/contrib.git /usr/src/k8s-contrib \
   && cd /usr/src/k8s-contrib \
   # For security reasons
-  && git checkout 93f75fa70b3b14971b8bc72fe7574923bf50e719 \
+  #&& git checkout 93f75fa70b3b14971b8bc72fe7574923bf50e719 \
   && cd - \
   && wget --progress=bar:force:noscroll -O /tmp/go.tar.gz "$GO_DOWNLOAD_URL" \
   && echo "$GO_DOWNLOAD_SHA256 */tmp/go.tar.gz" | sha256sum -c - \
