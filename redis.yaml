@@ -1,3 +1,189 @@
+---
+################
+# redis 命名空间
+################
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: redis
+  labels:
+    name: redis
+---
+################
+# redis 挂载
+################
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: data0
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/opt/redis0/data"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: data1
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/opt/redis1/data"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: data2
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/opt/redis2/data"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: data3
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/opt/redis3/data"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: data4
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/opt/redis4/data"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: data5
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/opt/redis5/data"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-redis-0
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: data0
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-redis-1
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: data1
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-redis-2
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: data2
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-redis-3
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: data3
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-redis-4
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: data4
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-redis-5
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: data5
+---
+################
+# redis service
+################
 apiVersion: v1
 kind: Service
 metadata:
@@ -17,6 +203,9 @@ spec:
   selector:
     app: redis
 ---
+###################
+# redis ConfigMap
+###################
 apiVersion: v1
 data:
   cluster.conf: |
@@ -31,15 +220,18 @@ metadata:
   name: redis-conf
   labels:
     app: redis
-  namespace: default
+  namespace: redis
 ---
+################
+# redis deploy
+################
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
   name: redis
 spec:
   serviceName: redis
-  replicas: 7
+  replicas: 6
   template:
     metadata:
       labels:
@@ -48,7 +240,7 @@ spec:
     spec:
       containers:
         - name: redis
-          image: sporkmonger/redis-k8s:3.2.6
+          image: 10.14.125.131:5000/redis-k8s:3.2.6
           imagePullPolicy: Always
           args:
             - "redis-server"
@@ -58,7 +250,7 @@ spec:
           resources:
             requests:
               cpu: "100m"
-              memory: "100Mi"
+              memory: "2Gi"
           ports:
             - name: redis
               containerPort: 6379
@@ -71,18 +263,23 @@ spec:
               mountPath: "/etc/redis"
             - name: "data"
               mountPath: "/var/lib/redis"
+            - name: host-time
+              mountPath: /etc/localtime
         - name: "cluster-meet"
-          image: sporkmonger/redis-k8s:3.2.6
+          image: 10.14.125.131:5000/redis-k8s:3.2.6
           imagePullPolicy: Always
           command:
           - bash
           - "-c"
           - |
             set -e
-            peer-finder -on-start="/usr/local/bin/cluster-meet.sh" -service=redis -ns=default
+            peer-finder -on-start="/usr/local/bin/cluster-meet.sh" -service=redis -ns=redis
             # Don't crash loop
             sleep infinity
       volumes:
+        - name: host-time
+          hostPath:
+            path: /etc/localtime
         - name: "data"
           persistentVolumeClaim:
             claimName: "data"
@@ -94,12 +291,9 @@ spec:
                 path: "cluster.conf"
   volumeClaimTemplates:
   - metadata:
-      name: "data"
-      annotations:
-        volume.alpha.kubernetes.io/storage-class: anything
+      name: data
     spec:
-      accessModes:
-        - "ReadWriteOnce"
+      accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
-          storage: 20Gi
+          storage: 5Gi
