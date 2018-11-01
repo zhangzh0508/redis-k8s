@@ -48,7 +48,7 @@ RUN set -ex \
 	&& wget --progress=bar:force:noscroll -O redis.tar.gz "$REDIS_DOWNLOAD_URL" \
 	&& echo "$REDIS_DOWNLOAD_SHA1 *redis.tar.gz" | sha1sum -c - \
 	&& mkdir -p /usr/src/redis \
-  && mkdir -p /usr/local/bin \
+        && mkdir -p /usr/local/bin \
 	&& tar -xzf redis.tar.gz -C /usr/src/redis --strip-components=1 \
 	&& rm redis.tar.gz \
 	\
@@ -69,6 +69,8 @@ RUN set -ex \
   && sed -i -e "s|^bind .*$|#bind 0.0.0.0|" /etc/redis.conf \
   && cp /usr/src/redis/sentinel.conf /etc/ \
 	\
+	&& cp /usr/src/redis/src/redis-trib.rb /usr/local/bin/redis-trib.rb \
+	&& chmod +x /usr/local/bin/redis-trib.rb \
 	&& rm -r /usr/src/redis \
 	\
 	&& apt-get purge -y --auto-remove $buildDeps
@@ -102,8 +104,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends git \
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends ruby redis-tools \
-  && wget http://download.redis.io/redis-stable/src/redis-trib.rb -O /usr/local/bin/redis-trib.rb \
-  && chmod +x /usr/local/bin/redis-trib.rb \
+  #&& wget http://download.redis.io/redis-stable/src/redis-trib.rb -O /usr/local/bin/redis-trib.rb \
+  #&& chmod +x /usr/local/bin/redis-trib.rb \
   && gem install redis --version 3.0.0 \
   && rm -rf /var/lib/apt/lists/*
 
