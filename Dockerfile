@@ -80,6 +80,7 @@ ENV GO_DOWNLOAD_SHA256 47fda42e46b4c3ec93fa5d4d4cc6a748aa3f9411a2a2b7e08e3a6d80d
 RUN apt-get update && apt-get install -y --no-install-recommends git \
   && rm -rf /var/lib/apt/lists/* \
   && rm -rf /usr/src/k8s-contrib \
+  && mkdir -p /usr/src/k8s-contrib \
   && git clone https://github.com/kubernetes/contrib.git /usr/src/k8s-contrib \
   && cd /usr/src/k8s-contrib \
   # For security reasons
