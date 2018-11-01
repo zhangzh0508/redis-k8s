@@ -79,8 +79,6 @@ ENV GO_DOWNLOAD_SHA256 47fda42e46b4c3ec93fa5d4d4cc6a748aa3f9411a2a2b7e08e3a6d80d
 
 RUN apt-get update && apt-get install -y --no-install-recommends git \
   && rm -rf /var/lib/apt/lists/* \
-  && rm -rf /usr/src/k8s-contrib \
-  && mkdir -p /usr/src/k8s-contrib \
   && git clone https://github.com/kubernetes/contrib.git /usr/src/k8s-contrib \
   && cd /usr/src/k8s-contrib \
   # For security reasons
@@ -92,9 +90,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends git \
   && rm /tmp/go.tar.gz \
   && mkdir -p /usr/src/go/src \
   && export GOPATH=/usr/src/go \
+  && sed -i 's/k8s.io\/kubernetes\/pkg\/util\/sets/k8s.io\/apimachinery\/pkg\/util\/sets/g' /usr/src/k8s-contrib/peer-finder/peer-finder.go \
   && /usr/local/go/bin/go get k8s.io/apimachinery/pkg/util/sets \
   && /usr/local/go/bin/go build \
-    /usr/src/k8s-contrib/peer-finder/peer-finder.go \
+    /usr/src/k8s-contrib/pets/peer-finder/peer-finder.go \
   && mv peer-finder /usr/local/bin/ \
   && rm -rf /usr/local/go \
   && apt-get purge -y --auto-remove git \
